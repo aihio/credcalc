@@ -447,4 +447,26 @@ class CreditCalculatorTest {
 
         assertEquals(0, schedule.getLast().closingBalance().compareTo(BigDecimal.ZERO));
     }
+
+    // --- Facade validation and delegation ---
+
+    @Test
+    void invalidInput_throwsException() {
+        assertThrows(IllegalArgumentException.class, () ->
+                calculator.calculatePaymentSchedule(BigDecimal.ZERO, LocalDate.of(2025, 1, 1), 6));
+        assertThrows(IllegalArgumentException.class, () ->
+                calculator.calculatePaymentSchedule(new BigDecimal("-10.00"), LocalDate.of(2025, 1, 1), 6));
+        assertThrows(IllegalArgumentException.class, () ->
+                calculator.calculatePaymentSchedule(new BigDecimal("1000.00"), LocalDate.of(2025, 1, 1), 0));
+        assertThrows(IllegalArgumentException.class, () ->
+                calculator.calculatePaymentSchedule(new BigDecimal("1000.00"), LocalDate.of(2025, 1, 1), -1));
+    }
+
+    @Test
+    void unsupportedDuration_noMatchingBuilder_throwsException() {
+        // Custom calculator with empty builders
+        var emptyCalculator = new CreditCalculator(java.util.List.of(), calculator::calculateMinimumPayment);
+        assertThrows(IllegalArgumentException.class, () ->
+                emptyCalculator.calculatePaymentSchedule(new BigDecimal("1000.00"), LocalDate.of(2025, 1, 1), 6));
+    }
 }

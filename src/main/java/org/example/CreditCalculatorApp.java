@@ -13,10 +13,21 @@ import java.util.Scanner;
  */
 public class CreditCalculatorApp {
 
-    static void main() {
-        var scanner = new Scanner(System.in);
-        var calculator = new CreditCalculator();
+    private final CreditCalculator calculator;
+    private final Scanner scanner;
 
+    public CreditCalculatorApp(CreditCalculator calculator, Scanner scanner) {
+        this.calculator = calculator;
+        this.scanner = scanner;
+    }
+
+    static void main() {
+        var terms = CreditTerms.revolut();
+        var app = new CreditCalculatorApp(new CreditCalculator(terms), new Scanner(System.in));
+        app.run();
+    }
+
+    public void run() {
         var spendAmount = readSpendAmount(scanner);
         var purchaseDate = readPurchaseDate(scanner);
         var numberOfMonths = readNumberOfMonths(scanner);
