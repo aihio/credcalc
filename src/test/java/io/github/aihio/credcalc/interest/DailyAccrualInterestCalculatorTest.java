@@ -1,6 +1,6 @@
-package org.example.interest;
+package io.github.aihio.credcalc.interest;
 
-import org.example.CreditTerms;
+import io.github.aihio.credcalc.CreditTerms;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;

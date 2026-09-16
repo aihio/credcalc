@@ -1,7 +1,7 @@
-package org.example.schedule;
+package io.github.aihio.credcalc.schedule;
 
-import org.example.CreditTerms;
-import org.example.payment.RevolutMinimumPaymentPolicy;
+import io.github.aihio.credcalc.CreditTerms;
+import io.github.aihio.credcalc.payment.RevolutMinimumPaymentPolicy;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;

@@ -1,9 +1,9 @@
-package org.example.schedule;
+package io.github.aihio.credcalc.schedule;
 
-import org.example.CreditTerms;
-import org.example.interest.DailyAccrualInterestCalculator;
-import org.example.payment.BinarySearchPaymentSolver;
-import org.example.payment.RevolutMinimumPaymentPolicy;
+import io.github.aihio.credcalc.CreditTerms;
+import io.github.aihio.credcalc.interest.DailyAccrualInterestCalculator;
+import io.github.aihio.credcalc.payment.BinarySearchPaymentSolver;
+import io.github.aihio.credcalc.payment.RevolutMinimumPaymentPolicy;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;

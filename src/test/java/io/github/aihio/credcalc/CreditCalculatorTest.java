@@ -1,4 +1,4 @@
-package org.example;
+package io.github.aihio.credcalc;
 
 import org.junit.jupiter.api.Test;
 

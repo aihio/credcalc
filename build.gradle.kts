@@ -3,7 +3,7 @@ plugins {
     id("application")
 }
 
-group = "org.example"
+group = "io.github.aihio.credcalc"
 version = "1.0-SNAPSHOT"
 
 java {
@@ -13,7 +13,7 @@ java {
 }
 
 application {
-    mainClass.set("org.example.CreditCalculatorApp")
+    mainClass.set("io.github.aihio.credcalc.CreditCalculatorApp")
 }
 
 repositories {

@@ -1,4 +1,4 @@
-package org.example.payment;
+package io.github.aihio.credcalc.payment;
 
 import java.math.BigDecimal;
 

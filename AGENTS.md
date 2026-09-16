@@ -42,7 +42,7 @@ Run these Gradle commands to verify changes:
 ./gradlew compileJava
 
 # Run single test class
-./gradlew test --tests org.example.interest.DailyAccrualInterestCalculatorTest
+./gradlew test --tests io.github.aihio.credcalc.interest.DailyAccrualInterestCalculatorTest
 
 # Run all tests
 ./gradlew test

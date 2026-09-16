@@ -1,6 +1,6 @@
-package org.example.schedule;
+package io.github.aihio.credcalc.schedule;
 
-import org.example.MonthlyStatement;
+import io.github.aihio.credcalc.MonthlyStatement;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;

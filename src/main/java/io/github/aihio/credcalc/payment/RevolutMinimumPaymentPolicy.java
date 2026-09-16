@@ -1,6 +1,6 @@
-package org.example.payment;
+package io.github.aihio.credcalc.payment;
 
-import org.example.CreditTerms;
+import io.github.aihio.credcalc.CreditTerms;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;

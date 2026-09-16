@@ -1,6 +1,6 @@
-package org.example.payment;
+package io.github.aihio.credcalc.payment;
 
-import org.example.interest.InterestCalculator;
+import io.github.aihio.credcalc.interest.InterestCalculator;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;

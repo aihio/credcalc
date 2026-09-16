@@ -1,12 +1,12 @@
-package org.example;
+package io.github.aihio.credcalc;
 
-import org.example.interest.DailyAccrualInterestCalculator;
-import org.example.payment.BinarySearchPaymentSolver;
-import org.example.payment.MinimumPaymentPolicy;
-import org.example.payment.RevolutMinimumPaymentPolicy;
-import org.example.schedule.GracePeriodScheduleBuilder;
-import org.example.schedule.InstallmentScheduleBuilder;
-import org.example.schedule.ScheduleBuilder;
+import io.github.aihio.credcalc.interest.DailyAccrualInterestCalculator;
+import io.github.aihio.credcalc.payment.BinarySearchPaymentSolver;
+import io.github.aihio.credcalc.payment.MinimumPaymentPolicy;
+import io.github.aihio.credcalc.payment.RevolutMinimumPaymentPolicy;
+import io.github.aihio.credcalc.schedule.GracePeriodScheduleBuilder;
+import io.github.aihio.credcalc.schedule.InstallmentScheduleBuilder;
+import io.github.aihio.credcalc.schedule.ScheduleBuilder;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;

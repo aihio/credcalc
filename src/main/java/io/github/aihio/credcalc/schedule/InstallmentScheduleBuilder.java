@@ -1,9 +1,9 @@
-package org.example.schedule;
+package io.github.aihio.credcalc.schedule;
 
-import org.example.MonthlyStatement;
-import org.example.interest.InterestCalculator;
-import org.example.payment.MinimumPaymentPolicy;
-import org.example.payment.PaymentSolver;
+import io.github.aihio.credcalc.MonthlyStatement;
+import io.github.aihio.credcalc.interest.InterestCalculator;
+import io.github.aihio.credcalc.payment.MinimumPaymentPolicy;
+import io.github.aihio.credcalc.payment.PaymentSolver;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;

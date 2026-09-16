@@ -1,4 +1,4 @@
-package org.example.interest;
+package io.github.aihio.credcalc.interest;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;

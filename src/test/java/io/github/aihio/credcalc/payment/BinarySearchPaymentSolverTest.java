@@ -1,7 +1,7 @@
-package org.example.payment;
+package io.github.aihio.credcalc.payment;
 
-import org.example.CreditTerms;
-import org.example.interest.DailyAccrualInterestCalculator;
+import io.github.aihio.credcalc.CreditTerms;
+import io.github.aihio.credcalc.interest.DailyAccrualInterestCalculator;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
