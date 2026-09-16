@@ -3,7 +3,7 @@ plugins {
     id("application")
 }
 
-group = "io.github.aihio.credcalc"
+group = "io.github.aihio"
 version = "1.0-SNAPSHOT"
 
 java {
