@@ -15,6 +15,11 @@ public interface InterestCalculator {
     BigDecimal calculatePreBillingInterest(BigDecimal balance, LocalDate purchaseDate);
 
     /**
+     * Interest accrued from start date through end date, inclusive.
+     */
+    BigDecimal calculateInterest(BigDecimal balance, LocalDate startDate, LocalDate endDate);
+
+    /**
      * Interest accrued over a full billing month.
      */
     BigDecimal calculateMonthInterest(BigDecimal balance, YearMonth month);

@@ -1,6 +1,7 @@
 package io.github.aihio.credcalc.schedule;
 
 import io.github.aihio.credcalc.MonthlyStatement;
+import io.github.aihio.credcalc.CreditTerms;
 import io.github.aihio.credcalc.payment.MinimumPaymentPolicy;
 
 import java.math.BigDecimal;
@@ -16,9 +17,15 @@ public class GracePeriodScheduleBuilder implements ScheduleBuilder {
     private static final BigDecimal ZERO_SCALED = BigDecimal.ZERO.setScale(SCALE, ROUNDING);
 
     private final MinimumPaymentPolicy minimumPaymentPolicy;
+    private final CreditTerms terms;
 
     public GracePeriodScheduleBuilder(MinimumPaymentPolicy minimumPaymentPolicy) {
+        this(minimumPaymentPolicy, CreditTerms.revolut());
+    }
+
+    public GracePeriodScheduleBuilder(MinimumPaymentPolicy minimumPaymentPolicy, CreditTerms terms) {
         this.minimumPaymentPolicy = minimumPaymentPolicy;
+        this.terms = terms;
     }
 
     @Override
@@ -34,13 +41,12 @@ public class GracePeriodScheduleBuilder implements ScheduleBuilder {
             throw new IllegalArgumentException("Unsupported repayment duration: " + numberOfMonths);
         }
 
-        var purchaseMonth = YearMonth.from(purchaseDate);
+        var dueDate = terms.dueDateFor(purchaseDate);
 
         if (numberOfMonths == 1) {
-            var paymentMonth = purchaseMonth.plusMonths(1);
             var minimumPayment = minimumPaymentPolicy.calculateMinimumPayment(spendAmount);
             return List.of(new MonthlyStatement(
-                    paymentMonth, spendAmount, ZERO_SCALED, spendAmount, ZERO_SCALED, minimumPayment));
+                    YearMonth.from(dueDate), dueDate, spendAmount, ZERO_SCALED, spendAmount, ZERO_SCALED, minimumPayment));
         }
 
         // 2-month grace: split principal, enforce minimum on first payment
@@ -51,9 +57,10 @@ public class GracePeriodScheduleBuilder implements ScheduleBuilder {
         var minimumSecond = minimumPaymentPolicy.calculateMinimumPayment(remainingBalance);
 
         return List.of(
-                new MonthlyStatement(purchaseMonth, spendAmount, ZERO_SCALED,
+                new MonthlyStatement(YearMonth.from(purchaseDate), purchaseDate, spendAmount, ZERO_SCALED,
                         firstPayment, remainingBalance, minimumFirst),
-                new MonthlyStatement(purchaseMonth.plusMonths(1), remainingBalance, ZERO_SCALED,
+                new MonthlyStatement(YearMonth.from(dueDate), dueDate, remainingBalance, ZERO_SCALED,
                         remainingBalance, ZERO_SCALED, minimumSecond));
     }
+
 }

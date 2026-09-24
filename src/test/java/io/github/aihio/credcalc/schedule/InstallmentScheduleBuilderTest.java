@@ -43,7 +43,7 @@ class InstallmentScheduleBuilderTest {
         var feb = schedule.getFirst();
         assertEquals(YearMonth.of(2025, 2), feb.month());
         assertEquals(new BigDecimal("1011.89"), feb.openingBalance());
-        assertEquals(new BigDecimal("22.76"), feb.interestCharged());
+        assertEquals(new BigDecimal("17.71"), feb.interestCharged());
         assertEquals(0, schedule.getLast().closingBalance().compareTo(BigDecimal.ZERO));
     }
 

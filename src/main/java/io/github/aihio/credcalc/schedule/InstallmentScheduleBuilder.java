@@ -1,6 +1,7 @@
 package io.github.aihio.credcalc.schedule;
 
 import io.github.aihio.credcalc.MonthlyStatement;
+import io.github.aihio.credcalc.CreditTerms;
 import io.github.aihio.credcalc.interest.InterestCalculator;
 import io.github.aihio.credcalc.payment.MinimumPaymentPolicy;
 import io.github.aihio.credcalc.payment.PaymentSolver;
@@ -21,14 +22,24 @@ public class InstallmentScheduleBuilder implements ScheduleBuilder {
     private final InterestCalculator interestCalculator;
     private final MinimumPaymentPolicy minimumPaymentPolicy;
     private final PaymentSolver paymentSolver;
+    private final CreditTerms terms;
 
     public InstallmentScheduleBuilder(
             InterestCalculator interestCalculator,
             MinimumPaymentPolicy minimumPaymentPolicy,
             PaymentSolver paymentSolver) {
+        this(interestCalculator, minimumPaymentPolicy, paymentSolver, CreditTerms.revolut());
+    }
+
+    public InstallmentScheduleBuilder(
+            InterestCalculator interestCalculator,
+            MinimumPaymentPolicy minimumPaymentPolicy,
+            PaymentSolver paymentSolver,
+            CreditTerms terms) {
         this.interestCalculator = interestCalculator;
         this.minimumPaymentPolicy = minimumPaymentPolicy;
         this.paymentSolver = paymentSolver;
+        this.terms = terms;
     }
 
     @Override
@@ -46,25 +57,30 @@ public class InstallmentScheduleBuilder implements ScheduleBuilder {
 
         var preBillingInterest = interestCalculator.calculatePreBillingInterest(spendAmount, purchaseDate);
         var adjustedBalance = spendAmount.add(preBillingInterest).setScale(SCALE, ROUNDING);
-        var firstBillingMonth = YearMonth.from(purchaseDate).plusMonths(1);
+        var firstDueDate = terms.dueDateFor(purchaseDate);
+        var firstPeriodStart = terms.statementDateFor(purchaseDate).plusDays(1);
 
-        var monthlyPayment = paymentSolver.findEqualPayment(adjustedBalance, firstBillingMonth, numberOfMonths);
+        var monthlyPayment = paymentSolver.findEqualPayment(
+                adjustedBalance, firstPeriodStart, firstDueDate, terms.paymentDueDay(), numberOfMonths);
 
         var statements = new ArrayList<MonthlyStatement>();
         var balance = adjustedBalance;
+        var periodStart = firstPeriodStart;
 
         for (var i = 0; i < numberOfMonths; i++) {
-            var currentMonth = firstBillingMonth.plusMonths(i);
+            var dueMonth = YearMonth.from(firstDueDate).plusMonths(i);
+            var dueDate = dueMonth.atDay(Math.min(terms.paymentDueDay(), dueMonth.lengthOfMonth()));
+            var currentMonth = YearMonth.from(dueDate);
 
             if (balance.compareTo(BigDecimal.ZERO) <= 0) {
                 statements.add(new MonthlyStatement(
-                        currentMonth, ZERO_SCALED, ZERO_SCALED, ZERO_SCALED, ZERO_SCALED, ZERO_SCALED));
+                        currentMonth, dueDate, ZERO_SCALED, ZERO_SCALED, ZERO_SCALED, ZERO_SCALED, ZERO_SCALED));
                 continue;
             }
 
             var currentOpening = balance.setScale(SCALE, ROUNDING);
-            var monthInterest = interestCalculator.calculateMonthInterest(balance, currentMonth);
-            balance = balance.add(monthInterest);
+            var periodInterest = interestCalculator.calculateInterest(balance, periodStart, dueDate);
+            balance = balance.add(periodInterest);
 
             var minimumPayment = minimumPaymentPolicy.calculateMinimumPayment(currentOpening);
             var effectivePayment = monthlyPayment.max(minimumPayment);
@@ -80,13 +96,14 @@ public class InstallmentScheduleBuilder implements ScheduleBuilder {
             }
 
             var displayedInterest = (i == 0)
-                    ? preBillingInterest.add(monthInterest).setScale(SCALE, ROUNDING)
-                    : monthInterest;
+                    ? preBillingInterest.add(periodInterest).setScale(SCALE, ROUNDING)
+                    : periodInterest;
 
             statements.add(new MonthlyStatement(
-                    currentMonth, currentOpening, displayedInterest,
+                    currentMonth, dueDate, currentOpening, displayedInterest,
                     actualPayment.setScale(SCALE, ROUNDING),
                     balance.setScale(SCALE, ROUNDING), minimumPayment));
+            periodStart = dueDate.plusDays(1);
         }
 
         return statements;

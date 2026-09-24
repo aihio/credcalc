@@ -1,6 +1,7 @@
 package io.github.aihio.credcalc;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.YearMonth;
 
 /**
@@ -15,10 +16,20 @@ import java.time.YearMonth;
  */
 public record MonthlyStatement(
         YearMonth month,
+        LocalDate dueDate,
         BigDecimal openingBalance,
         BigDecimal interestCharged,
         BigDecimal paymentAmount,
         BigDecimal closingBalance,
         BigDecimal minimumPayment
 ) {
+    public MonthlyStatement(
+            YearMonth month,
+            BigDecimal openingBalance,
+            BigDecimal interestCharged,
+            BigDecimal paymentAmount,
+            BigDecimal closingBalance,
+            BigDecimal minimumPayment) {
+        this(month, month.atEndOfMonth(), openingBalance, interestCharged, paymentAmount, closingBalance, minimumPayment);
+    }
 }

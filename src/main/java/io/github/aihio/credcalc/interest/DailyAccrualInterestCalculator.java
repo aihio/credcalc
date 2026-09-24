@@ -35,13 +35,33 @@ public class DailyAccrualInterestCalculator implements InterestCalculator {
 
     @Override
     public BigDecimal calculatePreBillingInterest(BigDecimal balance, LocalDate purchaseDate) {
-        var endOfMonth = purchaseDate.withDayOfMonth(purchaseDate.lengthOfMonth());
-        var days = (int) ChronoUnit.DAYS.between(purchaseDate, endOfMonth) + 1;
-        return accrueDailyInterest(balance, days, purchaseDate.getYear());
+        return calculateInterest(balance, purchaseDate, terms.statementDateFor(purchaseDate));
+    }
+
+    @Override
+    public BigDecimal calculateInterest(BigDecimal balance, LocalDate startDate, LocalDate endDate) {
+        if (endDate.isBefore(startDate)) {
+            return BigDecimal.ZERO.setScale(SCALE, ROUNDING);
+        }
+        return accrueInterest(balance, startDate, endDate);
     }
 
     @Override
     public BigDecimal calculateMonthInterest(BigDecimal balance, YearMonth month) {
-        return accrueDailyInterest(balance, month.lengthOfMonth(), month.getYear());
+        return calculateInterest(balance, month.atDay(1), month.atEndOfMonth());
+    }
+
+    private BigDecimal accrueInterest(BigDecimal balance, LocalDate startDate, LocalDate endDate) {
+        var total = BigDecimal.ZERO;
+        var currentDate = startDate;
+
+        while (!currentDate.isAfter(endDate)) {
+            var endOfYear = LocalDate.of(currentDate.getYear(), 12, 31);
+            var segmentEnd = endDate.isBefore(endOfYear) ? endDate : endOfYear;
+            var days = (int) ChronoUnit.DAYS.between(currentDate, segmentEnd) + 1;
+            total = total.add(accrueDailyInterest(balance, days, currentDate.getYear()));
+            currentDate = segmentEnd.plusDays(1);
+        }
+        return total.setScale(SCALE, ROUNDING);
     }
 }

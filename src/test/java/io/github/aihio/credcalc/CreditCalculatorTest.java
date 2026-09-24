@@ -19,8 +19,8 @@ class CreditCalculatorTest {
         // 1000 EUR on Jan 1 2025, 3-month repayment.
         // Pre-billing: Jan 1-31 = 31 days at 0.14/365.
         // Opening balance of Feb = 1000 + pre-billing interest = 1011.89.
-        // Feb interest (28 days on 1011.89) = 10.87.
-        // Displayed first-month interest = pre-billing (11.89) + Feb interest (10.87) = 22.76.
+        // Interest from Feb 1 through the Feb 15 due date = 5.82.
+        // Displayed first-statement interest = pre-billing (11.89) + 5.82 = 17.71.
         var schedule = calculator.calculatePaymentSchedule(
                 new BigDecimal("1000.00"),
                 LocalDate.of(2025, 1, 1),
@@ -31,7 +31,7 @@ class CreditCalculatorTest {
         var feb = schedule.getFirst();
         assertEquals(YearMonth.of(2025, 2), feb.month());
         assertEquals(new BigDecimal("1011.89"), feb.openingBalance());
-        assertEquals(new BigDecimal("22.76"), feb.interestCharged());
+        assertEquals(new BigDecimal("17.71"), feb.interestCharged());
     }
 
     @Test
@@ -48,7 +48,7 @@ class CreditCalculatorTest {
         var feb = schedule.getFirst();
         assertEquals(YearMonth.of(2025, 2), feb.month());
         assertEquals(new BigDecimal("1006.52"), feb.openingBalance());
-        assertEquals(new BigDecimal("17.33"), feb.interestCharged());
+        assertEquals(new BigDecimal("12.31"), feb.interestCharged());
 
         // Less interest than Jan 1 purchase (opening 1011.89)
         assertTrue(feb.openingBalance().compareTo(new BigDecimal("1011.89")) < 0,
@@ -71,8 +71,8 @@ class CreditCalculatorTest {
         assertEquals(YearMonth.of(2024, 3), mar.month());
         assertEquals(new BigDecimal("1011.09"), mar.openingBalance());
 
-        // March 2024 has 31 days, still leap year: rate = 0.14/366
-        assertEquals(new BigDecimal("23.08"), mar.interestCharged());
+        // Interest accrues only through the March 15 due date.
+        assertEquals(new BigDecimal("16.89"), mar.interestCharged());
     }
 
     @Test
@@ -350,10 +350,65 @@ class CreditCalculatorTest {
     }
 
     @Test
+    void customTerms_fullPaymentUsesConfiguredDueDate() {
+        var terms = new CreditTerms(
+                "Custom card", "USD", new BigDecimal("0.20"),
+                new BigDecimal("0.03"), new BigDecimal("10.00"), 20, 15);
+        var customCalculator = new CreditCalculator(terms);
+
+        var schedule = customCalculator.calculatePaymentSchedule(
+                new BigDecimal("1000.00"), LocalDate.of(2025, 1, 10), 1);
+
+        assertEquals(LocalDate.of(2025, 2, 15), schedule.getFirst().dueDate());
+        assertEquals(new BigDecimal("1000.00"), schedule.getFirst().paymentAmount());
+    }
+
+    @Test
+    void customTerms_installmentsAccrueUntilConfiguredStatementDay() {
+        var terms = new CreditTerms(
+                "Custom card", "USD", new BigDecimal("0.20"),
+                new BigDecimal("0.03"), new BigDecimal("10.00"), 20, 15);
+        var customCalculator = new CreditCalculator(terms);
+
+        var schedule = customCalculator.calculatePaymentSchedule(
+                new BigDecimal("1000.00"), LocalDate.of(2025, 1, 10), 3);
+
+        assertEquals(new BigDecimal("1006.03"), schedule.getFirst().openingBalance());
+        assertEquals(LocalDate.of(2025, 2, 15), schedule.getFirst().dueDate());
+    }
+
+    @Test
+    void customTerms_purchaseAfterStatementDayUsesNextStatementAndDueDate() {
+        var terms = new CreditTerms(
+                "Custom card", "USD", new BigDecimal("0.20"),
+                new BigDecimal("0.03"), new BigDecimal("10.00"), 20, 15);
+        var customCalculator = new CreditCalculator(terms);
+
+        var schedule = customCalculator.calculatePaymentSchedule(
+                new BigDecimal("1000.00"), LocalDate.of(2025, 1, 21), 3);
+
+        assertEquals(LocalDate.of(2025, 3, 15), schedule.getFirst().dueDate());
+        assertEquals(new BigDecimal("29.81"), schedule.getFirst().interestCharged());
+    }
+
+    @Test
+    void customTerms_twoMonthGraceUsesConfiguredDueDates() {
+        var terms = new CreditTerms(
+                "Custom card", "USD", new BigDecimal("0.20"),
+                new BigDecimal("0.03"), new BigDecimal("10.00"), 20, 15);
+        var customCalculator = new CreditCalculator(terms);
+
+        var schedule = customCalculator.calculatePaymentSchedule(
+                new BigDecimal("1000.00"), LocalDate.of(2025, 1, 10), 2);
+
+        assertEquals(LocalDate.of(2025, 1, 10), schedule.getFirst().dueDate());
+        assertEquals(LocalDate.of(2025, 2, 15), schedule.getLast().dueDate());
+    }
+
+    @Test
     void gracePeriod_payInTwoMonths_zeroInterest() {
         // Spend 1600 EUR on Oct 15, repay over 2 months.
-        // Month 1 (Oct): voluntary early payment of half (800 EUR), 0 interest.
-        // Month 2 (Nov): remaining half (800 EUR), 0 interest.
+        // Voluntary payment occurs in purchase month; remaining balance is due Nov 15.
         var schedule = calculator.calculatePaymentSchedule(
                 new BigDecimal("1600.00"),
                 LocalDate.of(2025, 10, 15),

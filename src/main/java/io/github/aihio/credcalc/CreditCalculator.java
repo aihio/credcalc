@@ -42,8 +42,8 @@ public class CreditCalculator {
         var solver = new BinarySearchPaymentSolver(interestCalculator, minPaymentPolicy);
 
         return List.of(
-                new GracePeriodScheduleBuilder(minPaymentPolicy),
-                new InstallmentScheduleBuilder(interestCalculator, minPaymentPolicy, solver)
+                new GracePeriodScheduleBuilder(minPaymentPolicy, terms),
+                new InstallmentScheduleBuilder(interestCalculator, minPaymentPolicy, solver, terms)
         );
     }
 
