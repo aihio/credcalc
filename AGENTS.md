@@ -17,10 +17,11 @@ CLI credit calculator conforming to Revolut credit card terms:
 1. **`var` Keyword Usage (Mandatory)**:
    - Local variable type inference (`var`) **MUST** be used for all local variable declarations where permitted.
    - Do not use explicit types for local variables unless required by the compiler (e.g., uninitialized variables, lambda targets).
-2. **Java 25 Toolchain**:
-   - Code against Java 25 toolchain configured in `build.gradle.kts`.
+2. **Java 26 Toolchain**:
+   - Code against Java 26 toolchain configured in `build.gradle.kts`.
    - Use stable language features only (no preview flags).
    - Use unnamed variables (`_`) for unused exception variables in `catch` blocks.
+   - Use compact source files for application entry points when they preserve behavior.
    - Prefer Java records for immutable data carriers (`MonthlyStatement`, `CreditTerms`).
 3. **Architecture & SOLID Principles**:
    - Clean separation of concerns with domain interfaces:
@@ -65,3 +66,13 @@ printf "1700\n2026-10-01\n12\n" | ./gradlew run -q --console=plain
 
 - Do not commit changes unless explicitly requested by the user.
 - Keep commits focused with descriptive conventional commit messages (`feat:`, `refactor:`, `fix:`, `test:`).
+
+## Agent skills
+
+### Issue tracker
+
+GitHub Issues (`aihio/credcalc`) via `gh` CLI. See `docs/agents/issue-tracker.md`.
+
+### Domain docs
+
+Single-context (`CONTEXT.md` + `docs/adr/`). See `docs/agents/domain.md`.

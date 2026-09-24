@@ -9,7 +9,7 @@ import java.util.Scanner;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-class CreditCalculatorAppTest {
+class CreditCalculatorCliTest {
 
     @Test
     void run_customPlanPrintsCustomTermsAndDueDate() {
@@ -19,7 +19,7 @@ class CreditCalculatorAppTest {
 
         try {
             var input = String.join("\n", "custom", "Travel card", "USD", "20", "3", "10", "20", "15", "1000", "2025-01-10", "1");
-            new CreditCalculatorApp(CreditCalculator::new, new Scanner(input)).run();
+            new CreditCalculatorCli(CreditCalculator::new, new Scanner(input)).run();
         } finally {
             System.setOut(originalOutput);
         }
@@ -38,7 +38,7 @@ class CreditCalculatorAppTest {
         System.setOut(new PrintStream(output, true, StandardCharsets.UTF_8));
 
         try {
-            new CreditCalculatorApp(CreditCalculator::new, new Scanner("1700\n2026-10-01\n12\n")).run();
+            new CreditCalculatorCli(CreditCalculator::new, new Scanner("1700\n2026-10-01\n12\n")).run();
         } finally {
             System.setOut(originalOutput);
         }
